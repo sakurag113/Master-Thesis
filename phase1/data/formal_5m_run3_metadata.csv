@@ -1,0 +1,17 @@
+run,bottleneck_mbit,start_s,end_s,requested_flows
+formal_5m_run3,5,0.0,8.0,0
+formal_5m_run3,5,8.0,16.0,2
+formal_5m_run3,5,16.0,24.0,0
+formal_5m_run3,5,24.0,33.0,2
+formal_5m_run3,5,33.0,40.0,0
+formal_5m_run3,5,40.0,48.0,2
+formal_5m_run3,5,48.0,54.0,0
+formal_5m_run3,5,54.0,63.0,2
+formal_5m_run3,5,63.0,70.0,0
+formal_5m_run3,5,70.0,77.0,3
+formal_5m_run3,5,77.0,82.0,0
+formal_5m_run3,5,82.0,91.0,3
+formal_5m_run3,5,91.0,99.0,0
+formal_5m_run3,5,99.0,106.0,2
+formal_5m_run3,5,106.0,113.0,0
+formal_5m_run3,5,113.0,120,2

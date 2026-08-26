@@ -1,0 +1,24 @@
+Connecting to host 192.168.100.22, port 5201
+[  5] local 192.168.100.11 port 58126 connected to 192.168.100.22 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-1.02   sec  2.12 MBytes  17.5 Mbits/sec  101   87.4 KBytes       
+[  5]   1.02-2.05   sec  1.50 MBytes  12.2 Mbits/sec    0   96.9 KBytes       
+[  5]   2.05-3.11   sec   896 KBytes  6.90 Mbits/sec    0    105 KBytes       
+[  5]   3.11-4.03   sec  1.00 MBytes  9.12 Mbits/sec    0    112 KBytes       
+[  5]   4.03-5.01   sec  1.00 MBytes  8.55 Mbits/sec   17   87.4 KBytes       
+[  5]   5.01-6.11   sec  1.00 MBytes  7.64 Mbits/sec    0    106 KBytes       
+[  5]   6.11-7.10   sec  1.00 MBytes  8.46 Mbits/sec    0    115 KBytes       
+[  5]   7.10-8.11   sec  1.50 MBytes  12.4 Mbits/sec   34   91.5 KBytes       
+[  5]   8.11-9.09   sec   896 KBytes  7.51 Mbits/sec    0    108 KBytes       
+[  5]   9.09-10.03  sec  1.00 MBytes  8.91 Mbits/sec    0    115 KBytes       
+[  5]  10.03-11.05  sec  1.00 MBytes  8.26 Mbits/sec    1   92.8 KBytes       
+[  5]  11.05-12.25  sec  1.50 MBytes  10.5 Mbits/sec    0    111 KBytes       
+[  5]  12.25-13.06  sec  1.00 MBytes  10.3 Mbits/sec    0    115 KBytes       
+[  5]  13.06-14.17  sec  1.00 MBytes  7.60 Mbits/sec   42   98.3 KBytes       
+[  5]  14.17-15.07  sec  1.00 MBytes  9.32 Mbits/sec    0    109 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-15.07  sec  17.4 MBytes  9.67 Mbits/sec  195            sender
+[  5]   0.00-15.15  sec  16.4 MBytes  9.07 Mbits/sec                  receiver
+
+iperf Done.

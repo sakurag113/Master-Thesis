@@ -1,0 +1,7 @@
+bottleneck_mbit
+requested_flows_mean
+active_flows_mean
+mean_overlimits_rate
+max_overlimits_rate
+std_overlimits_rate
+overlimits_rate_slope

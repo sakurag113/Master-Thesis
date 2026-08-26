@@ -1,0 +1,85 @@
+task,feature_set,model,metric,mean,std
+general,All Features,Logistic Regression,accuracy,0.8648395681573835,0.019983369457009497
+general,All Features,Logistic Regression,precision,0.8188507989325051,0.05462954067820803
+general,All Features,Logistic Regression,recall,0.8185758484937236,0.05596374484289898
+general,All Features,Logistic Regression,f1,0.8183335931587035,0.051684698288554924
+general,All Features,Logistic Regression,roc_auc,0.9057461558592259,0.019931732050330938
+general,All Features,Logistic Regression,pr_auc,0.8510888556680009,0.04539062874268835
+general,All Features,Random Forest,accuracy,0.8710060222236473,0.021498246775188017
+general,All Features,Random Forest,precision,0.8344182164603471,0.050835107547378675
+general,All Features,Random Forest,recall,0.8159326499021496,0.06352999267323699
+general,All Features,Random Forest,f1,0.8243850024374192,0.05094568049369975
+general,All Features,Random Forest,roc_auc,0.9170180145836844,0.018861774979687822
+general,All Features,Random Forest,pr_auc,0.8758633944711838,0.042639946222197134
+general,Baseline,Persistence,accuracy,0.7972614314047662,0.020977489406153023
+general,Baseline,Persistence,precision,0.7106876362599902,0.06365669550192284
+general,Baseline,Persistence,recall,0.7746933164279297,0.060903103970399546
+general,Baseline,Persistence,f1,0.741216560230223,0.06200707354167602
+general,Baseline,Persistence,roc_auc,0.8599871739092351,0.027187918266610458
+general,Baseline,Persistence,pr_auc,0.7836328044572848,0.055425511968436314
+general,No Current High Ratio,Logistic Regression,accuracy,0.8619715034599306,0.02614988351885493
+general,No Current High Ratio,Logistic Regression,precision,0.8143720980938436,0.06954228386742187
+general,No Current High Ratio,Logistic Regression,recall,0.8146959582725566,0.057597797150524085
+general,No Current High Ratio,Logistic Regression,f1,0.8139589844234362,0.059730505181801175
+general,No Current High Ratio,Logistic Regression,roc_auc,0.9071977085524947,0.01724457404135103
+general,No Current High Ratio,Logistic Regression,pr_auc,0.8494427486528388,0.043402513535270304
+general,No Current High Ratio,Random Forest,accuracy,0.8707847849045148,0.020824640558150236
+general,No Current High Ratio,Random Forest,precision,0.8361267082568578,0.05308065776660297
+general,No Current High Ratio,Random Forest,recall,0.812847362376268,0.06328449550661017
+general,No Current High Ratio,Random Forest,f1,0.8235605058390666,0.05121584104790814
+general,No Current High Ratio,Random Forest,roc_auc,0.917543322472141,0.01884376015244842
+general,No Current High Ratio,Random Forest,pr_auc,0.8751455131280743,0.04587234357794289
+general,Queue + Traffic Only,Logistic Regression,accuracy,0.8087023145222607,0.03104243507104208
+general,Queue + Traffic Only,Logistic Regression,precision,0.7197211701960222,0.08230058577378124
+general,Queue + Traffic Only,Logistic Regression,recall,0.8033419569349218,0.06248794585069731
+general,Queue + Traffic Only,Logistic Regression,f1,0.7579648585178645,0.0685764916737297
+general,Queue + Traffic Only,Logistic Regression,roc_auc,0.8661332909468772,0.020971066999940426
+general,Queue + Traffic Only,Logistic Regression,pr_auc,0.7985598671729462,0.059541418747476635
+general,Queue + Traffic Only,Random Forest,accuracy,0.8668277802236233,0.017567923403977663
+general,Queue + Traffic Only,Random Forest,precision,0.8282041281413515,0.040904161796496065
+general,Queue + Traffic Only,Random Forest,recall,0.8129915773233476,0.058600342125832636
+general,Queue + Traffic Only,Random Forest,f1,0.8200899426450317,0.04596988077537927
+general,Queue + Traffic Only,Random Forest,roc_auc,0.9070153805297467,0.020697241364862604
+general,Queue + Traffic Only,Random Forest,pr_auc,0.8643459771955844,0.05016627146487663
+early_warning,All Features,Logistic Regression,accuracy,0.8839384403126033,0.022592204519495836
+early_warning,All Features,Logistic Regression,precision,0.7015002410237804,0.1279855900962402
+early_warning,All Features,Logistic Regression,recall,0.3602436254586737,0.06806933695302436
+early_warning,All Features,Logistic Regression,f1,0.47511721392758155,0.08514920287715787
+early_warning,All Features,Logistic Regression,roc_auc,0.7707423303899652,0.048562879574907555
+early_warning,All Features,Logistic Regression,pr_auc,0.524464325418197,0.0876825404498083
+early_warning,All Features,Random Forest,accuracy,0.888656306932684,0.01925956165208003
+early_warning,All Features,Random Forest,precision,0.7617927170868348,0.10234379534723378
+early_warning,All Features,Random Forest,recall,0.34535733302356375,0.07471407167232257
+early_warning,All Features,Random Forest,f1,0.473039081039051,0.08426586610915207
+early_warning,All Features,Random Forest,roc_auc,0.7934067981713534,0.04175488879175859
+early_warning,All Features,Random Forest,pr_auc,0.5608514487255414,0.07439637950645527
+early_warning,Baseline,Persistence,accuracy,0.8539538964328249,0.015400935339410232
+early_warning,Baseline,Persistence,precision,0.0,0.0
+early_warning,Baseline,Persistence,recall,0.0,0.0
+early_warning,Baseline,Persistence,f1,0.0,0.0
+early_warning,Baseline,Persistence,roc_auc,0.5,0.0
+early_warning,Baseline,Persistence,pr_auc,0.14604610356717504,0.015400935339410246
+early_warning,No Current High Ratio,Logistic Regression,accuracy,0.8755582729194114,0.029884330892927795
+early_warning,No Current High Ratio,Logistic Regression,precision,0.639266212839949,0.17669719905947565
+early_warning,No Current High Ratio,Logistic Regression,recall,0.3685230953553534,0.06914103913958938
+early_warning,No Current High Ratio,Logistic Regression,f1,0.46630903601715284,0.10158095972211265
+early_warning,No Current High Ratio,Logistic Regression,roc_auc,0.7783413059263868,0.03979446639597264
+early_warning,No Current High Ratio,Logistic Regression,pr_auc,0.5201591488454493,0.09262362524792739
+early_warning,No Current High Ratio,Random Forest,accuracy,0.8890710261944192,0.020593916229866966
+early_warning,No Current High Ratio,Random Forest,precision,0.7584396475058615,0.10522911667926624
+early_warning,No Current High Ratio,Random Forest,recall,0.353430738745972,0.07525967480892083
+early_warning,No Current High Ratio,Random Forest,f1,0.4801118381324283,0.08521136199830318
+early_warning,No Current High Ratio,Random Forest,roc_auc,0.7962983650440721,0.041944809463959634
+early_warning,No Current High Ratio,Random Forest,pr_auc,0.5637768412840908,0.07348991274485736
+early_warning,Queue + Traffic Only,Logistic Regression,accuracy,0.8484429465234136,0.04070417173148388
+early_warning,Queue + Traffic Only,Logistic Regression,precision,0.5265608048614595,0.24161076569900639
+early_warning,Queue + Traffic Only,Logistic Regression,recall,0.36704784897372056,0.05129138523016232
+early_warning,Queue + Traffic Only,Logistic Regression,f1,0.4216928909282733,0.10586152523386982
+early_warning,Queue + Traffic Only,Logistic Regression,roc_auc,0.7230682739513451,0.03484258468197324
+early_warning,Queue + Traffic Only,Logistic Regression,pr_auc,0.41449384200658096,0.10547850224064842
+early_warning,Queue + Traffic Only,Random Forest,accuracy,0.8847747549299536,0.019730881861609303
+early_warning,Queue + Traffic Only,Random Forest,precision,0.7043383643383644,0.10844440369029482
+early_warning,Queue + Traffic Only,Random Forest,recall,0.36946313820669374,0.057092814382720666
+early_warning,Queue + Traffic Only,Random Forest,f1,0.4832101303725068,0.06732175129710592
+early_warning,Queue + Traffic Only,Random Forest,roc_auc,0.7918195300242624,0.040789332212139436
+early_warning,Queue + Traffic Only,Random Forest,pr_auc,0.5558546900102537,0.060241637859030375

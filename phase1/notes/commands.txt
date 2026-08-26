@@ -1,0 +1,49 @@
+Rebuild topology 
+~/phase1/scripts/topology.sh
+
+Reset bottleneck
+sudo ip netns exec sw tc qdisc del dev veth-swr root 2>/dev/null || true
+sudo ip netns exec sw tc qdisc add dev veth-swr root tbf rate 10mbit burst 32kbit latency 50ms
+sudo ip netns exec sw tc qdisc show dev veth-swr
+
+1. Baseline
+Cleanup iperf3
+sudo ip netns exec r1 pkill iperf3 2>/dev/null || true
+sudo ip netns exec s1 pkill iperf3 2>/dev/null || true
+sudo ip netns exec s2 pkill iperf3 2>/dev/null || true
+
+Baseline ping
+sudo ip netns exec s1 ping -i 0.2 10.0.3.1 | tee ~/phase1/data/ping_baseline_demo.txt
+
+Results
+grep 'time=' ~/phase1/data/ping_baseline_demo.txt | sed -E 's/.*time=([0-9.]+) ms/\1/' > ~/phase1/data/ping_rtt_baseline_demo.txt
+awk '{sum+=$1; n++} END {if(n>0) print "baseline avg RTT =", sum/n, "ms"}' ~/phase1/data/ping_rtt_baseline_demo.txt
+echo -n "baseline max RTT = "; sort -n ~/phase1/data/ping_rtt_baseline_demo.txt | tail -1
+
+2. Single flow
+T1: Start server
+sudo ip netns exec r1 pkill iperf3 2>/dev/null || true
+sudo ip netns exec r1 iperf3 -s -p 5201
+
+T2: Start ping
+sudo ip netns exec s1 ping -i 0.2 10.0.3.1 | tee ~/phase1/data/ping_singleflow_demo.txt
+
+T3: Single-flow client
+sudo ip netns exec s1 iperf3 -c 10.0.3.1 -p 5201 -t 15 | tee ~/phase1/data/iperf_s1_singleflow_demo.txt
+
+3. Dual flow
+T1: Start server 5201
+sudo ip netns exec r1 pkill iperf3 2>/dev/null || true
+sudo ip netns exec r1 iperf3 -s -p 5201
+
+T2: Start server 5202
+sudo ip netns exec r1 iperf3 -s -p 5202
+
+T3: Start ping
+sudo ip netns exec s1 ping -i 0.2 10.0.3.1 | tee ~/phase1/data/ping_dualflow_demo.txt
+
+T4: Start s1 client
+sudo ip netns exec s1 iperf3 -c 10.0.3.1 -p 5201 -t 15 | tee ~/phase1/data/iperf_s1_dualflow_demo.txt
+
+T5: Start s2 client
+sudo ip netns exec s2 iperf3 -c 10.0.3.1 -p 5202 -t 15 | tee ~/phase1/data/iperf_s2_dualflow_demo.txt

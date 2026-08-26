@@ -1,0 +1,229 @@
+# Phase 1 Experiment Log
+
+## Project
+**Title:** eBPF-driven Fine-grained Telemetry and Machine Learning for EVPN/VXLAN Datacenter Networks
+
+## Phase 1 Goal
+Build a minimal software-based testbed, reproduce congestion-related latency increase, and collect a first proof-of-concept dataset.
+
+---
+
+## Experiment 001: Minimal Testbed Setup
+
+### Objective
+Create a minimal namespace-based topology and verify connectivity.
+
+### Topology
+- `s1`: sender 1
+- `s2`: sender 2
+- `sw`: intermediate forwarding node
+- `r1`: receiver
+
+Logical topology:
+
+`s1, s2 -> sw -> r1`
+
+### Result
+The minimal topology was created successfully. Both `s1` and `s2` could reach `r1`, which confirmed that the base experimental environment was working correctly.
+
+### Conclusion
+The namespace-based software testbed is functional and can be used for traffic and latency experiments.
+
+---
+
+## Experiment 002: Baseline RTT Measurement
+
+### Objective
+Measure RTT under idle conditions without traffic contention.
+
+### Setup
+- No `iperf3` traffic
+- Ping from `s1` to `r1`
+- Interval: `0.2s`
+
+### Files
+- `ping_baseline.txt`
+- `ping_rtt_baseline.txt`
+- `ping_rtt_baseline.csv`
+
+### Observation
+RTT remained very close to zero, with only very small fluctuations.
+
+### Conclusion
+The base path latency of the testbed is negligible when there is no traffic contention.
+
+---
+
+## Experiment 003: Single-flow RTT Measurement
+
+### Objective
+Measure RTT when only one iperf3 flow is active.
+
+### Setup
+- `iperf3` server in `r1` on port `5201`
+- One flow: `s1 -> r1`
+- Ping from `s1` to `r1`
+- Ping interval: `0.2s`
+- `iperf3` duration: `15s`
+
+### Files
+- `ping_singleflow.txt`
+- `ping_rtt_singleflow.txt`
+- `ping_rtt_singleflow.csv`
+- `iperf_s1_singleflow.txt`
+
+### RTT Result
+- **Average RTT:** `16.8926 ms`
+- **Maximum RTT:** `532 ms`
+
+### Top RTT values
+- 206 ms
+- 208 ms
+- 217 ms
+- 219 ms
+- 226 ms
+- 245 ms
+- 259 ms
+- 263 ms
+- 307 ms
+- 532 ms
+
+### Observation
+Compared with the dual-flow contention runs, the single-flow run generally showed weaker RTT inflation. In the combined RTT plot, the high-RTT part of the single-flow curve appears later because ping started before the iperf3 flow and continued after the flow ended.
+
+### Conclusion
+The single-flow experiment suggests that the strongest latency increase is mainly related to contention rather than the presence of traffic alone.
+
+---
+
+## Experiment 004: Bottleneck Contention Runs
+
+### Objective
+Reproduce noticeable latency increase under controlled bottleneck contention.
+
+### Bottleneck Configuration
+A bottleneck was configured on the outgoing interface from `sw` to `r1`:
+
+- Namespace: `sw`
+- Interface: `veth-swr`
+- qdisc: `tbf`
+- rate: `10mbit`
+- burst: `32kbit`
+- latency: `50ms`
+
+### Traffic Configuration
+Two concurrent TCP flows were generated:
+
+- `s1 -> r1` on port `5201`
+- `s2 -> r1` on port `5202`
+
+At the same time, RTT was measured with ping from `s1` to `r1`.
+
+---
+
+### Run 1
+
+**Files**
+- `ping_run1.txt`
+- `iperf_s1_run1.txt`
+- `iperf_s2_run1.txt`
+
+**RTT**
+- Average RTT: `25.9893 ms`
+- Maximum RTT: `136 ms`
+
+**Throughput**
+- `s1`: about `3.91 Mbits/sec`
+- `s2`: about `2.59 Mbits/sec`
+- Total: about `6.50 Mbits/sec`
+
+**Observation**
+Run 1 showed clear RTT increase compared with baseline. The delay increase was visible but milder than in the later runs.
+
+**Conclusion**
+Run 1 confirmed that the bottleneck setup could reproduce measurable contention-related latency increase.
+
+---
+
+### Run 2
+
+**Files**
+- `ping_run2.txt`
+- `iperf_s1_run2.txt`
+- `iperf_s2_run2.txt`
+
+**RTT**
+- Average RTT: `85.9833 ms`
+- Maximum RTT: `562 ms`
+
+**Throughput**
+- `s1`: about `2.45 Mbits/sec`
+- `s2`: about `4.75 Mbits/sec`
+- Total: about `7.20 Mbits/sec`
+
+**Observation**
+Run 2 produced the strongest latency spike among all runs. RTT frequently rose to tens and hundreds of milliseconds, with a maximum of 562 ms.
+
+**Conclusion**
+Run 2 demonstrated that the current testbed can reproduce severe latency spikes under contention.
+
+---
+
+### Run 3
+
+**Files**
+- `ping_run3.txt`
+- `iperf_s1_run3.txt`
+- `iperf_s2_run3.txt`
+
+**RTT**
+- Average RTT: `80.9653 ms`
+- Maximum RTT: `308 ms`
+
+**Throughput**
+- `s1`: about `3.24 Mbits/sec`
+- `s2`: about `1.89 Mbits/sec`
+- Total: about `5.13 Mbits/sec`
+
+**Observation**
+Run 3 again reproduced strong RTT inflation. It was less extreme than Run 2, but still clearly more severe than Run 1.
+
+**Conclusion**
+Run 3 further confirmed that the latency increase is reproducible, although the exact intensity varies across runs.
+
+---
+
+## Cross-Experiment Summary
+
+### RTT Comparison
+- **Baseline:** near-zero RTT
+- **Single-flow:** avg `16.8926 ms`, max `532 ms`
+- **Run 1:** avg `25.9893 ms`, max `136 ms`
+- **Run 2:** avg `85.9833 ms`, max `562 ms`
+- **Run 3:** avg `80.9653 ms`, max `308 ms`
+
+### Main Findings
+1. The minimal namespace-based testbed was successfully built.
+2. The bottleneck link could be configured reliably with `tc`.
+3. Dual-flow contention consistently caused clear RTT inflation.
+4. Run 2 showed the strongest latency spike, while Run 1 was the mildest.
+5. Baseline RTT remained near zero, which confirms that the major delay increase is associated with traffic load and contention.
+6. The single-flow run showed that traffic alone can increase RTT, but the most significant latency spikes appear under multi-flow bottleneck contention.
+
+---
+
+## Figure Note
+A combined RTT comparison figure was generated for:
+
+- Baseline
+- Single-flow
+- Run 1
+- Run 2
+- Run 3
+
+In this figure, the x-axis represents **sample index** rather than synchronized wall-clock time. Therefore, the active traffic periods do not appear at the same position for all experiments. In particular, the single-flow RTT increase appears later in the plot because ping was started before the iperf3 flow and continued after the flow ended.
+
+---
+
+## Preliminary Phase 1 Conclusion
+Phase 1 demonstrates that the software-based namespace testbed can reliably reproduce noticeable latency increase under bottleneck contention. The current environment is therefore suitable for proof-of-concept data collection and for further Phase 1 refinement.

@@ -1,0 +1,7 @@
+run,high_windows,total_windows,high_latency_ratio
+Single-flow Run 1,2,15,0.13333333333333333
+Single-flow Run 2,5,15,0.3333333333333333
+Single-flow Run 3,5,15,0.3333333333333333
+Dual-flow Run 1,8,15,0.5333333333333333
+Dual-flow Run 2,7,15,0.4666666666666667
+Dual-flow Run 3,7,15,0.4666666666666667

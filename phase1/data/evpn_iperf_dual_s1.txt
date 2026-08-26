@@ -1,0 +1,17 @@
+Connecting to host 192.168.100.22, port 5201
+[  5] local 192.168.100.11 port 50886 connected to 192.168.100.22 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-1.00   sec  2.00 MBytes  16.7 Mbits/sec   76   87.4 KBytes       
+[  5]   1.00-2.06   sec  1.00 MBytes  7.94 Mbits/sec    0    101 KBytes       
+[  5]   2.06-3.00   sec  1.00 MBytes  8.90 Mbits/sec    0    105 KBytes       
+[  5]   3.00-4.00   sec  1.00 MBytes  8.41 Mbits/sec    0    108 KBytes       
+[  5]   4.00-5.01   sec   512 KBytes  4.16 Mbits/sec    0    112 KBytes       
+[  5]   5.01-6.03   sec  1.00 MBytes  8.20 Mbits/sec   39   86.0 KBytes       
+[  5]   6.03-7.01   sec   896 KBytes  7.49 Mbits/sec    0    104 KBytes       
+[  5]   7.01-8.11   sec  1.00 MBytes  7.63 Mbits/sec    0    113 KBytes       
+[  5]   8.11-9.00   sec  1.00 MBytes  9.43 Mbits/sec   36   88.7 KBytes       
+[  5]   8.11-9.00   sec  1.00 MBytes  9.43 Mbits/sec   36   88.7 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-9.00   sec  10.4 MBytes  9.67 Mbits/sec  151            sender
+[  5]   0.00-9.00   sec  0.00 Bytes  0.00 bits/sec                  receiver

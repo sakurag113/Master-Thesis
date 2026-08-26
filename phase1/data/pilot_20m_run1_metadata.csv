@@ -1,0 +1,8 @@
+run,bottleneck_mbit,start_s,end_s,requested_flows
+pilot_20m_run1,20,0,8,0
+pilot_20m_run1,20,8,21,1
+pilot_20m_run1,20,21,30,3
+pilot_20m_run1,20,30,47,2
+pilot_20m_run1,20,47,55,3
+pilot_20m_run1,20,55,73,0
+pilot_20m_run1,20,73,90,1
