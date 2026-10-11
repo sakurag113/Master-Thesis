@@ -2,63 +2,46 @@
 
 ## Purpose
 
-Phase 2 investigates whether traffic and queue-related measurements can be used to predict future high-latency events.
+Phase 2 investigates whether traffic, bottleneck, queue, and latency-related measurements can be used to predict future high-latency events.
 
-The Phase 1 experimental workflow is extended with automated traffic generation, larger-scale repeated experiments, feature extraction, labelling, and machine-learning evaluation.
-
----
-
-## Experimental Workflow
-
-```text
-Automated Experiments
-        ↓
-Raw Telemetry
-        ↓
-Sliding Windows
-        ↓
-Feature Extraction
-        ↓
-Future Latency Labels
-        ↓
-Model Training
-        ↓
-Cross-validation
-        ↓
-Prediction Evaluation
-```
+The Phase 1 workflow is extended with automated traffic generation, larger-scale repeated experiments, sliding-window feature extraction, future-state labelling, machine-learning evaluation, run-grouped cross-validation, feature ablation, and out-of-fold prediction analysis.
 
 ---
 
 ## Dataset Construction
 
-The final Phase 2 dataset combines pilot and formal experiment runs.
+The final Phase 2 dataset contains:
 
-It contains:
-
-- 60 experiment runs
+- 60 independent experiment runs
 - 4,543 prediction samples
 - 1,761 future HIGH samples
 - 2,782 future NORMAL samples
 - 381 NORMAL-to-HIGH transition samples
 
-The NORMAL-to-HIGH transitions are particularly important for evaluating early-warning prediction.
+The early-warning subset contains only samples where the current state is NORMAL:
+
+- 2,623 early-warning samples
+- 381 positive NORMAL-to-HIGH transitions
+- Positive prevalence: approximately 14.53%
 
 ---
 
 ## Prediction Task
 
-Each prediction sample uses a recent observation window to estimate whether the following time window will contain a high-latency event.
+Each prediction sample uses a recent observation window to estimate whether the following future window will contain a HIGH-latency condition.
 
-Features are derived from:
+Features include:
 
 - Bottleneck configuration
-- Requested traffic flows
-- Active traffic flows
+- Requested traffic-flow statistics
+- Active traffic-flow statistics
 - RTT statistics
-- Queue-related statistics
+- Queue-overlimit statistics
+- Current latency-state indicators
 
-The prediction models include:
+---
+
+## Models
 
 - Persistence baseline
 - Logistic Regression
@@ -68,47 +51,143 @@ The prediction models include:
 
 ## Evaluation Method
 
-Because multiple sliding windows are generated from the same experiment run, samples within one run are correlated.
+Evaluation uses 5-fold run-grouped cross-validation.
 
-Therefore, model evaluation uses run-grouped cross-validation instead of randomly splitting individual rows.
+This keeps complete experiment runs together and avoids placing correlated windows from the same run in both training and test subsets.
 
-This prevents windows from the same experiment appearing in both training and test data.
-
-Two main prediction scenarios are evaluated:
+Two scenarios are evaluated:
 
 ### General Prediction
 
-Predict whether the future window will be in a HIGH-latency state.
+Predict whether the future observation window will be in a HIGH-latency state.
 
 ### Early-warning Prediction
 
-Evaluate only samples where the current state is NORMAL and determine whether a transition to HIGH will occur in the future window.
+Evaluate only samples where the current latency state is NORMAL and determine whether the network transitions to HIGH in the future window.
 
 ---
 
-## Feature Evaluation
+## Feature Sets
 
-Multiple feature groups are compared, including:
+### All Features
 
-- Full feature set
-- Features without the current high-latency ratio
-- Queue-and-Traffic features
+- `bottleneck_mbit`
+- `requested_flows_mean`
+- `active_flows_mean`
+- `mean_rtt`
+- `std_rtt`
+- `min_rtt`
+- `max_rtt`
+- `median_rtt`
+- `p95_rtt`
+- `rtt_slope`
+- `mean_overlimits_rate`
+- `max_overlimits_rate`
+- `std_overlimits_rate`
+- `overlimits_rate_slope`
+- `current_high_ratio`
 
-The feature-ablation experiments show that useful predictive information remains even when direct current-state information is removed.
+### No Current High Ratio
+
+The full feature set except `current_high_ratio`.
+
+### Queue + Traffic Only
+
+- `bottleneck_mbit`
+- `requested_flows_mean`
+- `active_flows_mean`
+- `mean_overlimits_rate`
+- `max_overlimits_rate`
+- `std_overlimits_rate`
+- `overlimits_rate_slope`
+
+This configuration removes all RTT-derived features and direct current-latency-state information.
 
 ---
 
-## Main Results
+## Feature Ablation
 
-For early-warning prediction, the Queue-and-Traffic Random Forest achieved approximately:
+| Feature Set | F1 | ROC-AUC | PR-AUC |
+|---|---:|---:|---:|
+| All Features | 0.473 | 0.793 | 0.561 |
+| No Current High Ratio | 0.480 | 0.796 | 0.564 |
+| Queue + Traffic Only | 0.483 | 0.792 | 0.556 |
 
-- F1-score: 0.483
-- ROC-AUC: 0.792
-- PR-AUC: 0.556
+The Queue + Traffic Random Forest is selected for online deployment because it provides comparable predictive performance while avoiding direct RTT-derived state information.
 
-The persistence baseline cannot provide meaningful NORMAL-to-HIGH early warnings because it simply assumes that the current state will continue.
+---
 
-The results support the feasibility of using traffic and queue-related information to predict future latency degradation.
+## Final Early-warning Cross-validation Results
+
+| Metric | Mean ± Standard Deviation |
+|---|---:|
+| Accuracy | 0.885 ± 0.020 |
+| Precision | 0.704 ± 0.108 |
+| Recall | 0.369 ± 0.057 |
+| F1 | 0.483 ± 0.067 |
+| ROC-AUC | 0.792 ± 0.041 |
+| PR-AUC | 0.556 ± 0.060 |
+
+---
+
+## Out-of-Fold Metrics Interpretation
+
+Pooled out-of-fold dataset:
+
+- 2,623 samples
+- 381 positive samples
+- 2,242 negative samples
+- Positive prevalence: 14.53%
+
+Pooled metrics:
+
+| Metric | Value |
+|---|---:|
+| Accuracy | 0.884 |
+| Precision | 0.692 |
+| Recall | 0.365 |
+| F1 | 0.478 |
+| ROC-AUC | 0.787 |
+| PR-AUC | 0.547 |
+
+Confusion matrix:
+
+| | Predicted NORMAL | Predicted HIGH |
+|---|---:|---:|
+| Actual NORMAL | 2180 | 62 |
+| Actual HIGH | 242 | 139 |
+
+The model therefore generates relatively few false warnings but misses a considerable fraction of future HIGH transitions.
+
+The positive-class prevalence baseline is approximately `0.145`, while pooled PR-AUC is approximately `0.547`.
+
+---
+
+## Interpretation of Evaluation Metrics
+
+### F1
+
+F1 is the harmonic mean of precision and recall and is not equivalent to accuracy.
+
+### ROC-AUC
+
+The pooled ROC-AUC of approximately `0.787` indicates useful discrimination between future HIGH and future NORMAL samples.
+
+### PR-AUC
+
+PR-AUC is especially relevant under class imbalance. The model's `0.547` is substantially above the prevalence baseline of approximately `0.145`.
+
+### Precision / Recall Trade-off
+
+The current operating point favours precision over recall. Lowering the threshold could increase recall at the cost of more false warnings.
+
+---
+
+## Pooled and Fold-based Results
+
+The main comparison tables report 5-fold mean ± standard deviation.
+
+ROC, PR, confusion-matrix, and pooled classification metrics are generated from combined out-of-fold predictions.
 
 ---
 
@@ -121,36 +200,51 @@ phase2/
 └── scripts/
 ```
 
-### `data/`
+Important final evaluation files include:
 
-Contains pilot datasets, formal experiment datasets, processed prediction datasets, and evaluation results.
+```text
+final_prediction_dataset.csv
+final_general_cv_results.csv
+final_early_warning_cv_results.csv
+final_early_warning_oof_predictions.csv
+final_model_summary.csv
+feature_ablation_paper_table.csv
+early_warning_metrics_interpretation.csv
+```
 
-### `plots/`
+Important final figures include:
 
-Contains model-comparison, early-warning, feature-ablation, and dataset-analysis figures.
-
-### `scripts/`
-
-Contains automated experiment runners, dataset-processing scripts, model-training scripts, cross-validation scripts, and result-analysis scripts.
+```text
+early_warning_roc_curve.png
+early_warning_pr_curve.png
+early_warning_confusion_matrix.png
+```
 
 ---
 
 ## Model Export
 
-Phase 2 performs model training, comparison, and evaluation.
+The final selected model is:
 
-The selected Queue-and-Traffic Random Forest model used for online experiments is exported and stored under:
+```text
+Queue + Traffic Random Forest
+```
+
+The exported online model and feature definition are stored under:
 
 ```text
 phase3/models/
 ```
 
-This keeps the model artifact together with the online prediction and mitigation implementation that uses it.
+with:
+
+```text
+online_rf_queue_traffic.joblib
+online_feature_list.txt
+```
 
 ---
 
 ## Relationship to Phase 3
 
-Phase 3 takes the selected prediction model from Phase 2 and integrates it into a live prediction pipeline.
-
-The model is then used to trigger an online mitigation controller and evaluate whether prediction-driven intervention improves network latency.
+Phase 3 integrates the selected model into a live prediction pipeline using online queue telemetry, single-flow and dual-flow experiments, recovery analysis, and mitigation A/B testing.

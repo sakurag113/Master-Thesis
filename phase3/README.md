@@ -4,139 +4,201 @@
 
 Phase 3 integrates the prediction model selected in Phase 2 into an online network-control pipeline.
 
-The main objective is to determine whether predicted latency risk can be used to trigger mitigation and improve network performance.
+The main objectives are to determine whether:
+
+1. The offline-trained model can operate on live telemetry.
+2. Predicted latency risk can identify emerging congestion conditions.
+3. Prediction-driven mitigation can improve latency behaviour.
+4. The online model responds meaningfully to different traffic loads.
+5. Prediction recovery after traffic termination is consistent with the sliding-window design.
+6. The experimental traffic traverses the intended EVPN/VXLAN overlay.
 
 ---
 
-## Online Workflow
+## Selected Online Model
+
+The selected model is:
 
 ```text
-Traffic Generation
-       ↓
-Live Telemetry
-       ↓
-Feature Window
-       ↓
-Random Forest Prediction
-       ↓
-Latency-risk Warning
-       ↓
-Mitigation Controller
-       ↓
-Performance Evaluation
+Queue + Traffic Random Forest
 ```
 
----
+Features:
 
-## Online Prediction
+- `bottleneck_mbit`
+- `requested_flows_mean`
+- `active_flows_mean`
+- `mean_overlimits_rate`
+- `max_overlimits_rate`
+- `std_overlimits_rate`
+- `overlimits_rate_slope`
 
-The selected Queue-and-Traffic Random Forest model is loaded by the online prediction system.
+Online configuration:
 
-The model continuously processes live traffic and queue-related measurements and estimates the risk of a future high-latency event.
-
-The online implementation validates that the model trained using Phase 2 datasets can operate on live experimental data.
-
----
-
-## Traffic Generation
-
-The online traffic generator produces repeated periods of:
-
-- No traffic
-- Moderate traffic
-- Heavy traffic
-- Recovery
-
-Parallel iperf3 streams are used so that multiple traffic flows can be generated reliably during each traffic period.
+- Observation window: `2.0 s`
+- Telemetry sampling interval: `0.2 s`
+- Prediction interval: `1.0 s`
+- Warning threshold: `0.50`
 
 ---
 
 ## Mitigation Controller
 
-When the predicted risk exceeds the configured warning threshold, the mitigation controller temporarily increases the available bottleneck capacity.
-
-After the mitigation period, the original bottleneck configuration is restored.
-
-A refined controller also checks whether active traffic flows are present before triggering mitigation.
-
-This prevents outdated prediction windows from causing unnecessary mitigation during zero-traffic recovery periods.
-
----
-
-## Online Validation
-
-Before the formal mitigation experiment, the online prediction system was evaluated independently.
-
-The proof-of-concept online validation produced an early-warning F1-score of approximately:
+Baseline bottleneck:
 
 ```text
-0.462
+10 Mbit/s
 ```
 
-The number of positive transition samples in this individual run was small, so this result is mainly used to demonstrate online feasibility.
-
----
-
-## Formal A/B Evaluation
-
-The final evaluation compares:
+Mitigation rate:
 
 ```text
-Mitigation OFF
-      vs
-Mitigation ON
+20 Mbit/s
 ```
 
-Five repeated runs are performed for each condition using the same traffic pattern.
-
-The main evaluation metrics include:
-
-- Mean RTT
-- Median RTT
-- P95 RTT
-- P99 RTT
-- Maximum RTT
-- High-latency sample ratio
-- Mitigation trigger count
-- Mitigation active ratio
+The refined controller also requires `active_flows > 0` before mitigation can be triggered.
 
 ---
 
-## Main Results
+## Formal A/B Mitigation Evaluation
 
-Across the five repeated OFF/ON experiments:
+Five repeated runs are performed for each condition.
 
-### Mean RTT
+Mean RTT:
 
 ```text
 OFF ≈ 90.8 ms
 ON  ≈ 77.2 ms
 ```
 
-This corresponds to an average reduction of approximately:
+Average reduction: approximately `15%`.
 
-```text
-15%
-```
-
-### High-latency Ratio
+High-latency ratio:
 
 ```text
 OFF ≈ 0.906
 ON  ≈ 0.466
 ```
 
-This corresponds to a reduction of approximately:
+Reduction: approximately `48.6%`.
+
+P99 RTT and maximum RTT remain more variable.
+
+---
+
+## Single-flow and Dual-flow Validation
+
+| Condition | Mean Risk | Mean Overlimits Rate |
+|---|---:|---:|
+| Single flow | 0.791 | 112.9 events/s |
+| Dual flow | 0.828 | 177.2 events/s |
+
+The dual-flow condition produced stronger queue pressure and moderately higher predicted risk.
+
+Mean RTT was not consistently higher under dual-flow traffic in this individual experiment.
+
+---
+
+## Risk Recovery after Traffic Termination
+
+Observed recovery times:
+
+- Mean time to risk below `0.5`: `1.73 s`
+- Mean time to low-risk baseline: `2.36 s`
+
+This is consistent with the 2-second sliding observation window.
+
+---
+
+## Packet-scale Validation
+
+Six measured Phase 3 runs were analysed.
+
+| Metric | Mean |
+|---|---:|
+| Bottleneck packets per run | 2885 |
+| Spine packet rate | 44.55 pkt/s |
+| Spine throughput | 4.17 Mbit/s |
+| Delivery ratio | 0.984 |
+
+Packet observations are distinct from machine-learning prediction-window samples.
+
+---
+
+## EVPN/VXLAN Overlay Verification
+
+Confirmed VXLAN configuration:
 
 ```text
-48.6%
+leaf1 VTEP = 1.1.1.1
+leaf2 VTEP = 2.2.2.2
+VXLAN interface = vxlan100
+VNI = 100
+UDP destination port = 4789
 ```
 
-The reduction in mean RTT and high-latency exposure is relatively consistent across the repeated experiments.
+### Bridge / FDB Verification
 
-However, P99 and maximum RTT show considerably larger variability and are not consistently improved.
+The VXLAN forwarding entries confirmed the remote VTEP mappings between leaf1 and leaf2.
 
-The current mitigation controller therefore appears more effective at reducing sustained high-latency exposure than eliminating rare extreme latency events.
+### BGP EVPN Control Plane
+
+Confirmed:
+
+- leaf1 BGP peer established
+- spine BGP peers established
+- leaf2 BGP peer established
+- L2VPN EVPN address family active
+- EVPN Type-2 routes present
+- EVPN Type-3 routes present
+
+AS numbers:
+
+```text
+spine  AS 65000
+leaf1  AS 65001
+leaf2  AS 65002
+```
+
+### VXLAN Data Plane
+
+Packet capture on the spine showed:
+
+```text
+1.1.1.1 → 2.2.2.2
+UDP destination port 4789
+VXLAN VNI 100
+```
+
+and:
+
+```text
+2.2.2.2 → 1.1.1.1
+UDP destination port 4789
+VXLAN VNI 100
+```
+
+Inner traffic:
+
+```text
+192.168.100.11 ↔ 192.168.100.22
+```
+
+This verifies that h1-to-h2 traffic traverses the intended EVPN/VXLAN overlay.
+
+---
+
+## Final Queue + Traffic Feature Definition
+
+| Feature | Category | Description |
+|---|---|---|
+| `bottleneck_mbit` | Configuration | Configured bottleneck link capacity |
+| `requested_flows_mean` | Traffic | Mean requested flow count in the observation window |
+| `active_flows_mean` | Traffic | Mean active TCP flow count in the observation window |
+| `mean_overlimits_rate` | Queue | Mean TBF overlimit-event rate |
+| `max_overlimits_rate` | Queue | Maximum overlimit-event rate |
+| `std_overlimits_rate` | Queue | Variability of queue pressure |
+| `overlimits_rate_slope` | Queue | Trend in queue pressure over the observation window |
 
 ---
 
@@ -151,67 +213,81 @@ phase3/
 └── scripts/
 ```
 
-### `data/`
-
-Contains online validation results, formal A/B comparison results, and summary statistics.
-
-### `logs/`
-
-Contains raw online prediction and mitigation experiment logs.
-
-### `models/`
-
-Contains the prediction model and corresponding online feature definition.
-
-Current model artifacts include:
+Important data files include:
 
 ```text
-online_rf_queue_traffic.joblib
-online_feature_list.txt
+flow_comparison_summary.csv
+risk_recovery_summary.csv
+thesis_key_results.csv
+evpn_vxlan_verification_table.csv
+online_feature_definition_table.csv
 ```
 
-### `plots/`
+Packet statistics:
 
-Contains final Phase 3 evaluation figures, including:
+```text
+packet_stats/
+├── measured_runs.csv
+├── measured_snapshots.csv
+├── packet_snapshots.csv
+├── packet_summary.csv
+└── paper_packet_statistics.csv
+```
 
-- Mean RTT comparison
-- High-latency ratio comparison
-- Paired mitigation reduction
-- Tail-latency comparison
+Important newer scripts include:
 
-### `scripts/`
-
-Contains:
-
-- Online traffic generation
-- Online prediction
-- Prediction validation
-- Mitigation controller
-- Formal A/B experiment automation
-- Final result analysis
-- Plot generation
+```text
+analyze_flow_comparison.py
+analyze_packet_runs.py
+analyze_risk_recovery.py
+calculate_packet_summary.py
+make_feature_ablation_paper.py
+make_feature_definition_table.py
+make_overlay_verification_table.py
+make_thesis_key_results_summary.py
+online_predictor_flow_comparison.py
+plot_phase3_analysis.py
+record_packet_snapshot.py
+run_flow_comparison.py
+run_phase3_batch.py
+run_phase3_measured.py
+```
 
 ---
 
 ## Current Conclusion
 
-Phase 3 demonstrates that an offline-trained prediction model can be incorporated into an online mitigation controller.
+Phase 3 demonstrates that an offline-trained Queue + Traffic Random Forest can operate on live telemetry and be integrated into an online mitigation controller.
 
-Repeated A/B experiments indicate that prediction-driven mitigation can reduce average latency and substantially reduce the amount of time the network spends in a high-latency state.
+Repeated A/B experiments indicate that prediction-driven mitigation can reduce average latency and high-latency exposure.
 
-At the same time, extreme tail-latency behaviour remains more variable, indicating that further controller refinement would be required to consistently suppress rare extreme latency events.
+Additional validation shows that:
+
+- Dual-flow traffic creates greater queue pressure than single-flow traffic
+- Risk recovery is consistent with the 2-second observation window
+- Individual runs contain thousands of bottleneck-interface packet observations
+- The evaluated traffic traverses a verified BGP EVPN/VXLAN overlay
+
+---
+
+## Current Limitations
+
+- Small controlled software-based testbed
+- Controlled traffic patterns
+- No complete eBPF telemetry implementation yet
+- CPU overhead not yet fully quantified
+- Early-warning recall remains relatively low at the current threshold
+- Extreme tail latency remains variable
+- Production-like workload diversity has not been evaluated
 
 ---
 
 ## Future Extensions
 
-Future work includes:
-
-- EVPN/VXLAN forwarding-path verification
 - eBPF-based telemetry integration and validation
-- CPU overhead evaluation
+- Comparison between eBPF telemetry and existing queue / traffic signals
+- CPU-overhead evaluation
 - Additional latency-spike metrics
 - Packet-loss evaluation
-- Limited robustness testing under additional traffic conditions
-
-These extensions are intended to strengthen the current experimental system rather than replace the completed Phase 1–3 workflow.
+- Threshold optimisation
+- Limited robustness testing under additional traffic and bottleneck conditions
