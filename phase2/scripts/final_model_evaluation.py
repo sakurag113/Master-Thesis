@@ -35,6 +35,11 @@ OUTPUT_EARLY = (
     "final_early_warning_cv_results.csv"
 )
 
+OUTPUT_EARLY_OOF = (
+    "/home/yuxsun/phase2/data/"
+    "final_early_warning_oof_predictions.csv"
+)
+
 OUTPUT_SUMMARY = (
     "/home/yuxsun/phase2/data/"
     "final_model_summary.csv"
@@ -249,6 +254,7 @@ gkf = GroupKFold(
 
 general_results = []
 early_results = []
+early_oof_predictions = []
 
 
 fold = 1
@@ -605,6 +611,38 @@ for train_index, test_index in gkf.split(
             )[:, 1]
         )
 
+        oof_part = pd.DataFrame({
+            "fold":
+                fold,
+
+            "run":
+                early_test[
+                    "run"
+                ].to_numpy(),
+
+            "source_index":
+                early_test.index.to_numpy(),
+
+            "feature_set":
+                feature_set_name,
+
+            "model":
+                "Random Forest",
+
+            "y_true":
+                y_early.to_numpy(),
+
+            "y_pred":
+                early_rf_pred,
+
+            "y_prob":
+                early_rf_prob
+        })
+
+        early_oof_predictions.append(
+            oof_part
+        )
+
         metrics = calculate_metrics(
             y_early,
             early_rf_pred,
@@ -754,6 +792,26 @@ general_df = pd.DataFrame(
 early_df = pd.DataFrame(
     early_results
 )
+
+
+if early_oof_predictions:
+    early_oof_df = pd.concat(
+        early_oof_predictions,
+        ignore_index=True
+    )
+else:
+    early_oof_df = pd.DataFrame(
+        columns=[
+            "fold",
+            "run",
+            "source_index",
+            "feature_set",
+            "model",
+            "y_true",
+            "y_pred",
+            "y_prob"
+        ]
+    )
 
 
 # ==========================================
@@ -908,6 +966,12 @@ early_df.to_csv(
 )
 
 
+early_oof_df.to_csv(
+    OUTPUT_EARLY_OOF,
+    index=False
+)
+
+
 # ==========================================
 # Build compact summary CSV
 # ==========================================
@@ -1035,6 +1099,22 @@ print(
 )
 print(
     OUTPUT_EARLY
+)
+
+print()
+print(
+    "Saved early-warning OOF predictions to:"
+)
+print(
+    OUTPUT_EARLY_OOF
+)
+
+print()
+print(
+    "OOF prediction rows =",
+    len(
+        early_oof_df
+    )
 )
 
 print()

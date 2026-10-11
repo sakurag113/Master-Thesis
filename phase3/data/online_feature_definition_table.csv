@@ -1,0 +1,8 @@
+Feature,Category,Meaning
+bottleneck_mbit,Configuration,Configured bottleneck link capacity in Mbit/s.
+requested_flows_mean,Traffic,Mean number of requested traffic flows within the observation window.
+active_flows_mean,Traffic,Mean number of actually established active TCP flows within the observation window.
+mean_overlimits_rate,Queue,Mean rate of TBF queue overlimit events within the observation window.
+max_overlimits_rate,Queue,Maximum queue overlimit-event rate observed within the window.
+std_overlimits_rate,Queue,"Standard deviation of queue overlimit rate, representing variability in queue pressure."
+overlimits_rate_slope,Queue,Linear trend of queue overlimit rate over the observation window.

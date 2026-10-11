@@ -1,0 +1,2 @@
+model,samples,positive_samples,negative_samples,positive_prevalence,accuracy,precision,recall,f1,roc_auc,pr_auc,tn,fp,fn,tp
+Queue + Traffic Random Forest,2623,381,2242,0.14525352649637818,0.8841021730842546,0.6915422885572139,0.3648293963254593,0.47766323024054985,0.7864825884275616,0.5469961430180817,2180,62,242,139

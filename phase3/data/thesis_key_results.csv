@@ -1,0 +1,33 @@
+Section,Item,Value,Notes
+Dataset Scale,Independent experiment runs,60,Used for grouped cross-validation
+Dataset Scale,Prediction windows,4543,Complete Phase 2 prediction dataset
+Dataset Scale,Early-warning samples,2623,Samples with current_high = 0
+Dataset Scale,NORMAL → HIGH transitions,381,Positive early-warning samples
+Dataset Scale,Early-warning positive prevalence,14.53%,381 / 2623
+Dataset Scale,Mean bottleneck packets per measured run,2885,Measured from Phase 3 packet-count runs
+Final Model,Selected model,Queue + Traffic Random Forest,Selected after feature ablation
+Final Model,Number of online features,7,"Traffic, bottleneck, and queue features"
+Final Model,5-fold F1,0.483 ± 0.067,Early-warning evaluation
+Final Model,5-fold ROC-AUC,0.792 ± 0.041,Early-warning evaluation
+Final Model,5-fold PR-AUC,0.556 ± 0.060,Early-warning evaluation
+Pooled OOF Metrics,Accuracy,0.884,Queue + Traffic RF
+Pooled OOF Metrics,Precision,0.692,Queue + Traffic RF
+Pooled OOF Metrics,Recall,0.365,Queue + Traffic RF
+Pooled OOF Metrics,F1,0.478,Queue + Traffic RF
+Pooled OOF Metrics,ROC-AUC,0.787,Queue + Traffic RF
+Pooled OOF Metrics,PR-AUC,0.547,Random prevalence baseline = 0.145
+Pooled OOF Metrics,Confusion matrix,TN 2180 / FP 62 / FN 242 / TP 139,Default decision threshold
+Phase 3 Online,Single-flow mean risk,0.791,Flow comparison experiment
+Phase 3 Online,Dual-flow mean risk,0.828,Flow comparison experiment
+Phase 3 Online,Single-flow mean overlimits rate,112.9 events/s,Queue pressure
+Phase 3 Online,Dual-flow mean overlimits rate,177.2 events/s,Queue pressure
+Phase 3 Online,Mean time to risk < 0.5,1.73 s,After traffic termination
+Phase 3 Online,Mean time to low-risk baseline,2.36 s,Consistent with 2 s observation window
+Packet Statistics,Mean spine packet rate,44.55 pkt/s,n = 6 measured runs
+Packet Statistics,Mean spine throughput,4.17 Mbit/s,n = 6 measured runs
+Packet Statistics,Mean delivery ratio,0.984,h2_rx / h1_tx
+EVPN/VXLAN,VXLAN VNI,100,vxlan100
+EVPN/VXLAN,VXLAN UDP port,4789,Confirmed by packet capture
+EVPN/VXLAN,VTEP addresses,1.1.1.1 ↔ 2.2.2.2,leaf1 ↔ leaf2
+EVPN/VXLAN,BGP EVPN control plane,Verified,"Established peers, Type-2/Type-3 routes"
+EVPN/VXLAN,VXLAN data plane,Verified,"UDP/4789, VNI 100, inner h1 ↔ h2 traffic"

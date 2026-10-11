@@ -1,0 +1,17 @@
+\begin{table}
+\caption{Final Queue + Traffic feature set used by the online Random Forest model.}
+\label{tab:online_features}
+\begin{tabular}{lll}
+\toprule
+Feature & Category & Meaning \\
+\midrule
+bottleneck\_mbit & Configuration & Configured bottleneck link capacity in Mbit/s. \\
+requested\_flows\_mean & Traffic & Mean number of requested traffic flows within the observation window. \\
+active\_flows\_mean & Traffic & Mean number of actually established active TCP flows within the observation window. \\
+mean\_overlimits\_rate & Queue & Mean rate of TBF queue overlimit events within the observation window. \\
+max\_overlimits\_rate & Queue & Maximum queue overlimit-event rate observed within the window. \\
+std\_overlimits\_rate & Queue & Standard deviation of queue overlimit rate, representing variability in queue pressure. \\
+overlimits\_rate\_slope & Queue & Linear trend of queue overlimit rate over the observation window. \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,6 @@
+Verification Item,Evidence,Result
+VXLAN Interface,vxlan100 configured with VNI 100 and UDP destination port 4789,PASS
+VTEP Configuration,leaf1 VTEP = 1.1.1.1; leaf2 VTEP = 2.2.2.2,PASS
+BGP EVPN Control Plane,BGP EVPN peers established; EVPN Type-2 and Type-3 routes present,PASS
+VXLAN Data Plane,Packet capture on spine observed UDP/4789 VXLAN packets with VNI 100,PASS
+End-to-End Overlay Traffic,Inner packets carried 192.168.100.11 <-> 192.168.100.22 ICMP traffic through VXLAN,PASS
